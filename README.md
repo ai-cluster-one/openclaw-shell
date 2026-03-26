@@ -35,6 +35,7 @@ Your deployment provides these pages:
 | **Dashboard** | `/dashboard` | Native OpenClaw dashboard |
 | **Files** | `/files/` | Browse and manage files in `/data` volume |
 | **Public Pages** | `/pages/` | Publicly accessible content (no auth required) |
+| **Private App** | `/app/` | Auth-protected pages and tools (login required) |
 
 On a fresh install, you'll be redirected to the **Setup** page after login.
 
@@ -71,7 +72,14 @@ If you provided a Telegram Bot Token and User ID in the Setup page, the bot is r
 Create publicly accessible web content without authentication:
 - Ask OpenClaw to create landing pages, forms, dashboards
 - Files go to `/data/workspace/pages/`
-- Access at `https://your-openclaw.app/pages/`
+- Access at `https://your-domain/pages/`
+
+### Private App
+
+Auth-protected pages for personal tools and dashboards:
+- Files go to `/data/workspace/app/`
+- Access at `https://your-domain/app/` (requires login)
+- Backend API available at `/app-api/` (proxied to the same handler as `/pages-api/`, but with authentication context)
 
 ### Browser Automation
 
@@ -187,17 +195,6 @@ This is required for Railway volume permissions. No other environment variables 
 ## Other Platforms (Coolify, etc.)
 
 No environment variables are required. Just ensure your platform mounts a persistent volume at `/data`.
-
----
-
-## Troubleshooting
-
-### Dashboard Shows "Offline"
-1. Check the gateway token is correct (visible on `/setup` page)
-2. Try clearing browser localStorage and re-authenticating via `/setup`
-
-### Container Keeps Restarting
-Check deployment logs in your platform's dashboard.
 
 ---
 
