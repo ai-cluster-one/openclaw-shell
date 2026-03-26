@@ -16,7 +16,6 @@ A ready-to-deploy Docker image for self-hosting [OpenClaw](https://github.com/op
 
 ```
 openclaw-shell/
-├── .env.example              # Environment variables template
 ├── skills/                   # Core skills, deployed to all instances
 │   ├── pages/
 │   └── pages-backend/
@@ -56,9 +55,8 @@ All infrastructure config is enforced by `start-container.sh` on every boot. Do 
 
 Deployment is platform-agnostic. Platform-specific instructions live in separate files:
 
-- **Local development**: `.claude/deployment/local.md`
-- **Railway**: `.claude/deployment/railway.md`
-- **Coolify**: `.claude/deployment/coolify.md`
+- **Local development**: `.claude/context/deployment/local.md`
+- **Railway**: `.claude/context/deployment/railway.md`
 
 ### General workflow
 
@@ -70,7 +68,7 @@ Deployment is platform-agnostic. Platform-specific instructions live in separate
 
 ## Features
 
-Feature documentation lives in `.claude/features/`. Each file describes intent and architecture, with pointers to implementation — not duplicated config.
+Feature documentation lives in `.claude/context/features/`. Each file describes intent and architecture, with pointers to implementation — not duplicated config.
 
 - `auth-gateway.md` — Authentication proxy and setup page
 - `browser-headless.md` — Headless Chromium for agent browser tasks
@@ -96,15 +94,15 @@ docker compose -f docker-compose.local.yml up --build
 # Login: admin / admin
 ```
 
-See `.claude/deployment/local.md` for details.
+See `.claude/context/deployment/local.md` for details.
 
 ### Maintaining This File
 
 1. **Keep it lean** — Loaded into every Claude Code session. Every line should earn its place.
 2. **Describe what IS, not what HAPPENED** — Present tense, instructional tone.
 3. **Never duplicate implementation** — Point to the source file instead.
-4. **Platform-agnostic only** — Platform-specific details go in `.claude/deployment/<platform>.md`.
-5. **Features reference, don't explain** — One-line descriptions, link to `.claude/features/<name>.md`.
+4. **Platform-agnostic only** — Platform-specific details go in `.claude/context/deployment/<platform>.md`.
+5. **Features reference, don't explain** — One-line descriptions, link to `.claude/context/features/<name>.md`.
 
 ---
 
