@@ -38,9 +38,9 @@ A web-based setup utility that lets you bootstrap your instance so it becomes us
 
 - **Username & password** - replace the default `admin/admin` credentials
 - **Inference provider** - connect one of the supported AI providers to power your instance:
-  1. **ChatGPT subscription** - use your existing ChatGPT Plus/Pro subscription via the OpenAI-compatible API
-  2. **OpenAI API** - connect with an OpenAI API key
-  3. **Anthropic API** - connect with an Anthropic API key
+  - **ChatGPT subscription** - use your existing ChatGPT Plus/Pro subscription via the OpenAI-compatible API
+  - **OpenAI API** - connect with an OpenAI API key
+  - **Anthropic API** - connect with an Anthropic API key
 
 **Optional:**
 
@@ -102,11 +102,12 @@ This project is primarily built for and tested on [Railway](https://railway.com?
 
 ### Railway (recommended)
 
-1. Fork this repo and connect it to a new Railway service
+1. Create a new project in Railway, select **Deploy from GitHub Repo**, and paste this repository URL
 2. Add a volume mounted at `/data`
 3. Set environment variable: `RAILWAY_RUN_UID="0"` (Railway runs containers as non-root by default, which breaks volume write permissions - this overrides that)
-4. Go to **Settings → Networking → Public Networking**, generate a domain on port **8080**
-5. Open your public URL
+4. Click **Deploy**
+5. Go to **Settings → Networking → Public Networking**, generate a domain on port **8080**
+6. Open your public URL
 
 ### Other platforms
 
