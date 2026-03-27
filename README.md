@@ -18,7 +18,7 @@ After deployment, your instance comes with four main screens - all accessible fr
 
 ### Login page
 
-<img src="docs/images/login.png" width="400">
+<img src="docs/images/login.png" width="500">
 
 Your instance is protected from the moment of deployment. No one can access anything without providing a username and password. On first launch, the default credentials are `admin` / `admin` - the setup page prompts you to change these immediately.
 
