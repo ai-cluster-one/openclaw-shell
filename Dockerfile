@@ -13,8 +13,9 @@
 # -----------------------------------------------------------------------------
 FROM node:22-bookworm AS builder
 
-# Build argument for pinning to a specific version/commit
+# Build arguments
 ARG OPENCLAW_GIT_REF=v2026.3.24
+ARG SHELL_VERSION=dev
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -130,6 +131,8 @@ RUN mkdir -p /data/.openclaw /data/workspace
 # -----------------------------------------------------------------------------
 # Environment Variables (defaults - override via platform dashboard)
 # -----------------------------------------------------------------------------
+ARG SHELL_VERSION=dev
+ENV SHELL_VERSION=${SHELL_VERSION}
 ENV NODE_ENV=production
 ENV OPENCLAW_PREFER_PNPM=1
 

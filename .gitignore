@@ -36,10 +36,6 @@ build/
 # Local Docker development data
 data-local/
 project-data/
-openclaw-backup.tar.gz
-
-# Landing page (local customization)
-landing/
 
 # Backups
 .backups/
