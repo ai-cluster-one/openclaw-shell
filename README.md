@@ -96,12 +96,23 @@ This project is primarily built for and tested on [Railway](https://railway.com?
 
 ### Railway (recommended)
 
+The fastest way is the one-click template — it pre-configures the volume, environment variables, and networking for you:
+
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/dxP0U4?referralCode=2L3MjM&utm_source=github&utm_medium=readme)
+
+After deployment, go to **Settings → Networking → Public Networking**, generate a domain on port **8080**, and open your public URL.
+
+<details>
+<summary>Manual setup (if not using the template)</summary>
+
 1. Create a new project in Railway, select **Deploy from GitHub Repo**, and paste this repository URL
 2. Add a volume mounted at `/data`
 3. Set environment variable: `RAILWAY_RUN_UID="0"` (Railway runs containers as non-root by default, which breaks volume write permissions - this overrides that)
 4. Click **Deploy**
 5. Go to **Settings → Networking → Public Networking**, generate a domain on port **8080**
 6. Open your public URL
+
+</details>
 
 ### Other platforms
 

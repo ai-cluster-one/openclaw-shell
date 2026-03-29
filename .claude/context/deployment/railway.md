@@ -1,6 +1,16 @@
 # Railway Deployment
 
-## Platform-Specific Configuration
+## One-Click Template
+
+The easiest deployment method. The template pre-configures the volume, environment variables, and networking:
+
+https://railway.com/deploy/dxP0U4?referralCode=2L3MjM&utm_source=github&utm_medium=readme
+
+After deployment, generate a public domain on port 8080 in Settings → Networking → Public Networking.
+
+## Manual Configuration
+
+If deploying manually (not using the template), the following settings are required.
 
 ### Required Environment Variables
 
