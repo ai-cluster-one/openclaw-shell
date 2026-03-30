@@ -31,9 +31,22 @@ YELLOW='\033[1;33m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
+PROGRESS_FILE="/tmp/openclaw-install-progress"
+TOTAL_STAGES=8
+
 log()  { echo -e "${GREEN}[openclaw]${NC} $*"; }
 warn() { echo -e "${YELLOW}[openclaw]${NC} $*"; }
 err()  { echo -e "${RED}[openclaw]${NC} $*" >&2; }
+
+# Progress tracking — writes a machine-readable status file that can be polled
+# Format: STAGE/TOTAL STATUS message
+progress() {
+    local stage="$1"
+    local status="$2"
+    local message="$3"
+    echo "${stage}/${TOTAL_STAGES} ${status} ${message}" > "$PROGRESS_FILE"
+    log "[${stage}/${TOTAL_STAGES}] ${message}"
+}
 
 # ============================================================================
 # Parse arguments
@@ -422,11 +435,23 @@ COMPOSEEOF
 # ============================================================================
 
 start_container() {
-    log "Building and starting OpenClaw Shell (this may take a few minutes)..."
+    log "Building Docker image (this is the longest step)..."
     cd "$INSTALL_DIR"
-    docker compose -f docker-compose.vps.yml up -d --build
+    docker compose -f docker-compose.vps.yml build 2>&1 | while IFS= read -r line; do
+        # Surface key Docker build milestones to the progress file
+        case "$line" in
+            *"COPY"*|*"RUN"*|*"Step"*|*"pnpm install"*|*"pnpm build"*|*"apt-get"*)
+                echo "6/${TOTAL_STAGES} RUNNING Building: ${line:0:80}" > "$PROGRESS_FILE"
+                ;;
+        esac
+        echo "$line"
+    done
 
-    log "Waiting for container to become healthy..."
+    log "Starting container..."
+    docker compose -f docker-compose.vps.yml up -d
+
+    log "Waiting for health check..."
+    echo "6/${TOTAL_STAGES} RUNNING Waiting for container health check..." > "$PROGRESS_FILE"
     local attempts=0
     local max_attempts=60
     while [[ $attempts -lt $max_attempts ]]; do
@@ -438,6 +463,7 @@ start_container() {
     done
 
     if [[ $attempts -ge $max_attempts ]]; then
+        echo "6/${TOTAL_STAGES} FAILED Container not healthy after 5 minutes" > "$PROGRESS_FILE"
         warn "Container did not become healthy within 5 minutes."
         warn "Check logs: docker compose -f ${INSTALL_DIR}/docker-compose.vps.yml logs -f"
     else
@@ -539,31 +565,54 @@ main() {
     log "Starting OpenClaw Shell VPS installation..."
     echo ""
 
-    configure_swap
+    # Write initial progress file
+    echo "0/${TOTAL_STAGES} RUNNING Starting installation" > "$PROGRESS_FILE"
 
+    progress 1 RUNNING "Configuring swap..."
+    configure_swap
+    progress 1 DONE "Swap configured"
+
+    progress 2 RUNNING "Installing Docker..."
     if ! $SKIP_DOCKER; then
         install_docker
+    else
+        log "Docker installation skipped."
     fi
+    progress 2 DONE "Docker ready"
 
+    progress 3 RUNNING "Installing Caddy..."
     if ! $SKIP_CADDY && [[ -n "$DOMAIN" ]]; then
         install_caddy
+    else
+        log "Caddy installation skipped."
     fi
+    progress 3 DONE "Caddy ready"
 
+    progress 4 RUNNING "Cloning repository..."
     # Git is needed for cloning the repo
     if ! command -v git &>/dev/null; then
         apt-get update -qq && apt-get install -y -qq git >/dev/null
     fi
-
     setup_repo
+    progress 4 DONE "Repository cloned"
+
+    progress 5 RUNNING "Configuring firewall and compose..."
     setup_compose
     configure_firewall
-
     if ! $SKIP_CADDY && [[ -n "$DOMAIN" ]]; then
         configure_caddy
     fi
+    progress 5 DONE "Infrastructure configured"
 
+    progress 6 RUNNING "Building Docker image (this takes 5-8 minutes)..."
     start_container
+    progress 6 DONE "Container running and healthy"
+
+    progress 7 RUNNING "Installing management tools..."
     create_management_script
+    progress 7 DONE "Management CLI installed"
+
+    progress 8 DONE "Installation complete"
 
     # Print summary
     echo ""

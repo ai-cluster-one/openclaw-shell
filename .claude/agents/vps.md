@@ -90,15 +90,53 @@ ssh root@<IP> 'uname -a && free -h && df -h / && nproc'
 
 **If the server is clean:**
 
-Report findings to the user (OS, RAM, disk) and confirm they want to proceed. Then deploy using `curl | bash` — the script clones the repo from GitHub automatically:
+Report findings to the user (OS, RAM, disk) and confirm they want to proceed. Then deploy using `curl | bash` with progress monitoring.
+
+**Step 1 — Start the install in the background on the server:**
 
 ```bash
-ssh root@<IP> 'curl -fsSL https://raw.githubusercontent.com/ai-cluster-one/openclaw-shell/main/install-vps.sh | bash -s -- --domain <DOMAIN> --yes'
+ssh root@<IP> 'nohup bash -c "curl -fsSL https://raw.githubusercontent.com/ai-cluster-one/openclaw-shell/main/install-vps.sh | bash -s -- --domain <DOMAIN> --yes" > /tmp/openclaw-install.log 2>&1 &'
 ```
 
 The `--yes` flag skips the interactive confirmation (the agent has already confirmed with the user). The `--domain` flag skips the interactive domain prompt.
 
 The domain should come from the user. If they don't provide one, ask. Mention the nip.io option for quick setup without DNS.
+
+**Step 2 — Poll progress every 60-90 seconds:**
+
+The install script writes progress to `/tmp/openclaw-install-progress`. Poll it:
+
+```bash
+ssh root@<IP> 'cat /tmp/openclaw-install-progress 2>/dev/null || echo "NOT_STARTED"'
+```
+
+The format is: `STAGE/TOTAL STATUS message` (e.g., `6/8 RUNNING Building Docker image...`).
+
+After each poll, report the current stage to the user in a human-friendly way. Example:
+
+```
+[2/8] Installing Docker...
+[4/8] Cloning repository...
+[6/8] Building Docker image (this is the longest step)...
+[8/8] Installation complete
+```
+
+**Step 3 — Detect completion or failure:**
+
+- `8/8 DONE` → installation complete. Run a final verification:
+  ```bash
+  ssh root@<IP> 'openclaw status'
+  ```
+- `FAILED` in the status → read the install log for error details:
+  ```bash
+  ssh root@<IP> 'tail -50 /tmp/openclaw-install.log'
+  ```
+- If progress stalls for more than 3 polls (no change), read the log tail to check if the process is still running:
+  ```bash
+  ssh root@<IP> 'pgrep -f install-vps.sh > /dev/null && echo STILL_RUNNING || echo PROCESS_DEAD'
+  ```
+
+**Step 4 — Report final status to the user** with the access URL, login credentials, and any errors.
 
 **If OpenClaw is already installed:**
 
