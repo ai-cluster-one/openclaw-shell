@@ -22,6 +22,7 @@ openclaw-shell/
 ├── auth-proxy/               # Node.js auth proxy (index.cjs, setup-api.cjs, setup.html)
 ├── backend/                  # Pages-api server (server.cjs) — serves /pages-api/ and /app-api/
 ├── start-container.sh        # Startup orchestrator — THE source of truth for config
+├── install-vps.sh            # VPS installer — Docker + Caddy + auto-HTTPS on bare Linux
 ├── git-init.sh               # Git + SSH setup for automated backups
 ├── Dockerfile                # Build definition
 ├── docker-compose.local.yml  # Local development
@@ -58,6 +59,7 @@ Deployment is platform-agnostic. Platform-specific instructions live in separate
 
 - **Local development**: `.claude/context/deployment/local.md`
 - **Railway**: `.claude/context/deployment/railway.md`
+- **VPS (Hetzner, DigitalOcean, etc.)**: `.claude/context/deployment/vps.md`
 
 ### General workflow
 
@@ -76,6 +78,7 @@ Feature documentation lives in `.claude/context/features/`. Each file describes 
 - `chatgpt-oauth.md` — ChatGPT/Codex OAuth provider integration
 - `skills-pages.md` — Pages and pages-backend core skills
 - `project-data-sync.md` — Local/cloud workspace synchronization via Git
+- `vps-deployment.md` — Direct-to-server deployment with Docker + Caddy auto-HTTPS
 
 ---
 

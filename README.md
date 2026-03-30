@@ -92,18 +92,23 @@ Cron is set up and enabled out of the box. Your OpenClaw instance can schedule r
 
 ## Deploy
 
-This project is primarily built for and tested on [Railway](https://railway.com?referralCode=2L3MjM) (referral link - gives us both credits). However, it works on **any platform that can deploy from a Dockerfile and provision a public URL** - Coolify, Render, fly.io, or a plain VPS with Docker.
+This project is primarily built for and tested on [Railway](https://railway.com?referralCode=2L3MjM) (referral link - gives us both credits). It also supports **one-command deployment to any Linux VPS** (Hetzner, DigitalOcean, etc.) with automatic HTTPS. Works on any platform that can deploy from a Dockerfile — Coolify, Render, fly.io, or a plain VPS.
 
-### Railway (recommended)
+### Railway
 
 The fastest way is the one-click template — it pre-configures the volume, environment variables, and networking for you:
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/dxP0U4?referralCode=2L3MjM&utm_source=github&utm_medium=readme)
 
-After deployment, go to **Settings → Networking → Public Networking**, generate a domain on port **8080**, and open your public URL.
+**One-click template:**
 
-<details>
-<summary>Manual setup (if not using the template)</summary>
+1. Click the button above and follow the Railway prompts
+2. Wait for the build to complete (~3-5 minutes)
+3. Go to **Settings → Networking → Public Networking**, generate a domain on port **8080**
+4. Open your public URL
+5. Log in with `admin` / `admin` and complete the setup page
+
+**Manual setup (if not using the template):**
 
 1. Create a new project in Railway, select **Deploy from GitHub Repo**, and paste this repository URL
 2. Add a volume mounted at `/data`
@@ -111,8 +116,67 @@ After deployment, go to **Settings → Networking → Public Networking**, gener
 4. Click **Deploy**
 5. Go to **Settings → Networking → Public Networking**, generate a domain on port **8080**
 6. Open your public URL
+7. Log in with `admin` / `admin` and complete the setup page
 
-</details>
+### VPS (Hetzner, DigitalOcean, any Linux server)
+
+Deploy to any Linux server with automatic HTTPS. The install script handles everything - Docker, Caddy, TLS certificates, firewall, and the container itself.
+
+**Requirements:**
+
+- Ubuntu 22.04+ or Debian 12+ server
+- Root (SSH) access
+- 2GB RAM minimum (4GB recommended)
+- A domain with a DNS A record pointing to the server (optional - nip.io works without DNS)
+
+**Steps:**
+
+1. Point your domain's DNS A record to your server's IP address (skip this if using nip.io)
+2. SSH into your server and run the install script:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/ai-cluster-one/openclaw-shell/main/install-vps.sh | bash
+   ```
+   Or pass the domain directly:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/ai-cluster-one/openclaw-shell/main/install-vps.sh | bash -s -- --domain openclaw.example.com
+   ```
+3. The script will prompt you for a domain. Three options:
+   - Enter your domain (e.g., `openclaw.example.com`) — automatic HTTPS via Let's Encrypt
+   - Type `nip` — uses `<your-ip>.nip.io` for free DNS with valid HTTPS, no setup needed
+   - Type `skip` — direct HTTP access on port 8080, no HTTPS
+4. Wait for the build to complete (~5 minutes)
+5. Open `https://your-domain` (or `http://your-ip:8080` if you skipped HTTPS)
+6. Log in with `admin` / `admin` and complete the setup page
+
+**What gets installed:**
+
+| Component | Purpose |
+|-----------|---------|
+| Docker | Runs the OpenClaw Shell container |
+| Caddy | Reverse proxy with automatic Let's Encrypt HTTPS |
+| Firewall (ufw) | Only ports 22, 80, 443 open |
+| `openclaw` CLI | Management commands (see below) |
+
+**Managing your instance:**
+
+After installation, the `openclaw` command is available on the server:
+
+```bash
+openclaw status     # Container health and status
+openclaw logs       # Follow container logs
+openclaw update     # Pull latest code and rebuild
+openclaw restart    # Restart the container
+openclaw shell      # Shell into the container
+openclaw domain X   # Change domain and re-provision TLS
+openclaw backup     # Create a data backup tarball
+```
+
+You can also run these remotely:
+
+```bash
+ssh root@your-server 'openclaw update'
+ssh root@your-server 'openclaw logs --tail 50'
+```
 
 ### Other platforms
 
